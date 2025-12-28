@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>TikTok Awards — Vote Now</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Vote for your favorites at the TikTok Awards." />
+
+  <!-- Cloudflare Turnstile -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+  <style>
+    :root{
+      --bg:#07070b;
+      --card:rgba(255,255,255,.07);
+      --border:rgba(255,255,255,.14);
+      --text:rgba(255,255,255,.95);
+      --muted:rgba(255,255,255,.7);
+      --pink:#ff2d55;
+      --cyan:#00f2ea;
+      --gold:#f7d06b;
+      --radius:20px;
+      --shadow:0 20px 70px rgba(0,0,0,.45);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      background:
+        radial-gradient(900px 500px at 20% 20%, rgba(255,45,85,.25), transparent 60%),
+        radial-gradient(900px 500px at 80% 20%, rgba(0,242,234,.22), transparent 60%),
+        linear-gradient(180deg,#050508,var(--bg));
+      color:var(--text);
+    }
+
+    a{color:inherit;text-decoration:none}
+
+    .container{
+      width:min(1100px,calc(100% - 48px));
+      margin:0 auto;
+    }
+
+    header{
+      position:sticky;
+      top:0;
+      z-index:10;
+      backdrop-filter:blur(14px);
+      background:rgba(7,7,11,.6);
+      border-bottom:1px solid var(--border);
+    }
+
+    .nav{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:14px 0;
+    }
+
+    .brand{
+      font-weight:900;
+      font-size:18px;
+      letter-spacing:.3px;
+    }
+
+    .grad{
+      background:linear-gradient(90deg,var(--pink),var(--cyan),var(--gold));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+
+    .btn{
+      padding:10px 16px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.06);
+      font-weight:800;
+      cursor:pointer;
+    }
+
+    .btn-primary{
+      border:none;
+      background:linear-gradient(90deg,var(--pink),var(--cyan));
+      color:#071016;
+    }
+
+    .hero{
+      padding:56px 0 32px;
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      gap:22px;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:28px;
+    }
+
+    h1{
+      font-size:clamp(32px,4.5vw,52px);
+      line-height:1.05;
+      margin:0 0 14px;
+    }
+
+    .sub{
+      color:var(--muted);
+      max-width:52ch;
+      line-height:1.5;
+    }
+
+    .actions{
+      display:flex;
+      gap:12px;
+      margin-top:18px;
+      flex-wrap:wrap;
+    }
+
+    /* Poll */
+    .poll-card{
+      padding:0;
+      overflow:hidden;
+    }
+
+    .poll-head{
+      padding:18px;
+      border-bottom:1px solid var(--border);
+      font-weight:900;
+    }
+
+    .poll-wrap{
+      padding:16px;
+    }
+
+    .embed{
+      border:1px solid var(--border);
+      border-radius:16px;
+      background:rgba(255,255,255,.04);
+      overflow:hidden;
+    }
+
+    .embed iframe{
+      width:100%;
+      height:520px;
+      border:0;
+    }
+
+    .captcha{
+      padding:18px;
+      text-align:left;
+    }
+
+    .captcha h3{
+      margin:0 0 6px;
+      font-size:16px;
+    }
+
+    .captcha p{
+      margin:0 0 12px;
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    footer{
+      margin-top:40px;
+      padding:28px 0 36px;
+      border-top:1px solid var(--border);
+      color:rgba(255,255,255,.6);
+      font-size:12px;
+      text-align:center;
+    }
+
+    @media (max-width:900px){
+      .hero{grid-template-columns:1fr}
+      .embed iframe{height:560px}
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="container nav">
+    <div class="brand">TikTok <span class="grad">Awards</span></div>
+    <a href="#vote" class="btn btn-primary">Vote now</a>
+  </div>
+</header>
+
+<main class="container hero">
+  <!-- LEFT -->
+  <section class="card">
+    <h1>
+      Celebrate the year’s biggest moments.<br />
+      <span class="grad">Your vote decides.</span>
+    </h1>
+    <p class="sub">
+      Vote for your favorite creators, trends, and viral moments.
+      Complete verification to keep voting fair.
+    </p>
+
+    <div class="actions">
+      <a href="#vote" class="btn btn-primary">Open poll</a>
+      <a href="#how" class="btn">How it works</a>
+    </div>
+  </section>
+
+  <!-- RIGHT / POLL -->
+  <aside class="card poll-card" id="vote">
+    <div class="poll-head">Fan Choice Voting</div>
+
+    <div class="poll-wrap">
+      <div class="embed">
+
+        <!-- CAPTCHA GATE -->
+        <div id="captchaGate" class="captcha">
+          <h3>Verify to vote</h3>
+          <p>Complete the captcha to unlock the poll.</p>
+
+          <div
+            class="cf-turnstile"
+            data-sitekey="0x4AAAAAACJXL4WCPMI_TcNo"
+            data-theme="dark"
+            data-callback="onTurnstileSolved"
+            data-error-callback="onTurnstileError"
+            data-expired-callback="onTurnstileExpired">
+          </div>
+
+          <div id="captchaMsg" style="margin-top:10px;font-size:12px;color:var(--muted);"></div>
+        </div>
+
+        <!-- POLL -->
+        <div id="pollArea" style="display:none;">
+          <iframe
+            title="PollUnit Poll"
+            loading="lazy"
+            src="https://pollunit.com/polls/lq_w73lkytuu0awl5b-lxw?embed=true"
+            allow="clipboard-write; web-share"
+            referrerpolicy="strict-origin-when-cross-origin">
+          </iframe>
+        </div>
+
+      </div>
+    </div>
+  </aside>
+</main>
+
+<section id="how" class="container">
+  <div class="card">
+    <h2 style="margin-top:0;">How it works</h2>
+    <ol style="color:var(--muted);line-height:1.6;">
+      <li>Verify with Cloudflare Turnstile</li>
+      <li>Vote in the PollUnit poll</li>
+      <li>Share with friends and creators</li>
+    </ol>
+  </div>
+</section>
+
+<footer>
+  © <span id="year"></span> TikTok Awards. All rights reserved.
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  // Turnstile callbacks
+  window.onTurnstileSolved = function(token){
+    document.getElementById("captchaGate").style.display = "none";
+    document.getElementById("pollArea").style.display = "block";
+  };
+
+  window.onTurnstileError = function(){
+    document.getElementById("captchaMsg").textContent =
+      "Captcha error. Please refresh and try again.";
+  };
+
+  window.onTurnstileExpired = function(){
+    document.getElementById("captchaMsg").textContent =
+      "Captcha expired. Please complete it again.";
+  };
+</script>
+
+</body>
+</html>
